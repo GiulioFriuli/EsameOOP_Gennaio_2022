@@ -3,6 +3,7 @@ package it.univpm.twitAnalizer.model;
 import java.util.Date;
 
 public class TwitModel {
+	// should be usefull
 	private String placeId;
 	private Date created;
 	
