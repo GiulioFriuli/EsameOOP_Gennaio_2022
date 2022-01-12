@@ -1,25 +1,22 @@
-package it.univpm.twitAnalizer.model;
 
-import java.util.Date;
+package it.univpm.twitAnalizer.model;
 
 public class TwitModel {
 	// should be usefull
-	private String placeId;
-	private Date created;
-	
-	public String getPlaceId() {
-		return placeId;
-	}
-	
-	public void setPlaceId(String placeId) {
-		this.placeId = placeId;
-	}
-	
-	public Date getCreated() {
-		return created;
-	}
-	
-	public void setCreated(Date created) {
-		this.created = created;
-	}
+		private String placeId;
+		private DateModel created;
+		
+		public TwitModel(String placeId, DateModel created) {
+			this.placeId = placeId;
+			this.created = created;
+		}
+		
+		public String getPlaceId() {
+			return placeId;
+		}
+		
+		public DateModel getCreated() {
+			return created;
+		}
+		
 }
