@@ -17,6 +17,6 @@ public class TwitModel {
 		
 		public DateModel getCreated() {
 			return created;
-		}
-		
+		}		
 }
+//added on main branch
