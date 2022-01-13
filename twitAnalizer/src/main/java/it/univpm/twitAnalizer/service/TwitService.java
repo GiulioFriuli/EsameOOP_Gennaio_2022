@@ -8,5 +8,6 @@ public interface TwitService {
 	public abstract JSONObject getTwit(TwitModel tweet);
 	public abstract JSONObject statistics();
 	public abstract void twitAnalyzer(TwitModel tweet);
+	public abstract void stampaFile(JSONObject tweet);
 }
 // added on main branch
