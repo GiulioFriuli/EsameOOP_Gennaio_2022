@@ -22,6 +22,9 @@ public class TwitServiceImpl implements TwitService{
 		JSONObject temp = new JSONObject();
 		
 	};
+	public void stampaFile(JSONObject tweet) {
+		
+	}
 }
 // temp[{placeID:null,counter:270},{placeID:156f1afsdf86,counter:5}]
 // statistiche{...+...}
