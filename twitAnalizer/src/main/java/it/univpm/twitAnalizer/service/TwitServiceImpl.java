@@ -15,7 +15,9 @@ import it.univpm.twitAnalizer.model.TwitModel;
 public class TwitServiceImpl implements TwitService{
 	private String url = new String("https://wd4hfxnxxa.execute-api.us-east-2.amazonaws.com/dev/api/1.1/search/tweets.json?q=%23travel&count=100");
 	private Vector<TwitModel> twitVector = new Vector<>();
-	
+	private Vector<Integer> counters = new Vector<>();
+	private Vector <String> tempPlace = new Vector<>();
+
 	@Override
 	public JSONObject getTwit() {
 		JSONObject obj;
@@ -23,15 +25,24 @@ public class TwitServiceImpl implements TwitService{
 		obj = new JSONObject(rt.getForObject(url, String.class));
 		return obj;
 	}
-	
+
 	@Override
 	public void fillVector() {
 		int anno, giorno, ora;
 		String mese, data, id;
 		JSONObject temp;
 		JSONArray twitArray = getTwit().getJSONArray("statuses");
-		
+
 		for(int i=0; i<twitArray.length(); i++) {
+
+			temp = twitArray.getJSONObject(i);
+
+			if(temp.getString("place").equals(null)) {
+				id = null;
+			}
+			else {
+				id = temp.getString("place_id");
+			}
 			temp = twitArray.getJSONObject(i);
 			
 			if(temp.getString("place").equals(null)) {
@@ -51,7 +62,7 @@ public class TwitServiceImpl implements TwitService{
 			twitVector.add(tm);
 		}
 	}
-	
+
 	@Override
 	public JSONObject statistics() {
 		JSONObject obj = new JSONObject();
@@ -59,9 +70,29 @@ public class TwitServiceImpl implements TwitService{
 	}
 
 	@Override
-	public void twitAnalyzer(TwitModel tweet) {
+	public JSONObject twitAnalyzer(TwitModel tweet) {
 		JSONObject temp = new JSONObject();
+		int i = 0;
 		
+		for(int k = 0; k < twitVector.size();k++) {
+			if(temp.getString("PlaceID").equals(tweet.getPlaceId())) {
+				if(!temp.get("Created").equals(tweet.getCreated())) {
+					temp.put("PlaceID", tweet.getPlaceId());
+					temp.put("Created", tweet.getCreated());
+					while(temp.getString("PlaceID") != tempPlace.get(i)) {
+						i++;
+					}
+					counters.set(i, counters.get(i)+1);
+				}
+			}
+			if(!temp.getString("PlaceID").equals(tweet.getPlaceId())) {
+				temp.put("PlaceID", tweet.getPlaceId());
+				temp.put("Created", tweet.getCreated());
+				tempPlace.add(tweet.getPlaceId());
+				counters.add(1);
+			}
+		}
+		return temp;
 	}
 
 	@Override	
@@ -79,6 +110,20 @@ public class TwitServiceImpl implements TwitService{
 		}
 	}
 }
+// data y - data x = 24h
 // temp[{placeID:null,counter:270},{placeID:156f1afsdf86,counter:5}]
 // statistiche{...+...}
 //added on main branch
+
+
+
+
+
+/*
+ *  file di testo
+ *  
+ *  000g:01h statistics()
+ *  000g:02h statistics()
+ *  ...
+ *  001g:00h statistics()
+ */
