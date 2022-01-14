@@ -33,9 +33,16 @@ public class TwitServiceImpl implements TwitService{
 		
 		for(int i=0; i<twitArray.length(); i++) {
 			temp = twitArray.getJSONObject(i);
+			
+			if(temp.getString("place").equals(null)) {
+				id = null;
+			}
+			else {
+				id = temp.getString("place_id");
+			}
+			
 			data = temp.getString("created_at");
-			id = temp.getString("place_id");
-			anno = Integer.parseInt(data.substring(26, 29));
+			anno = Integer.parseInt(data.substring(26));
 			mese = data.substring(4, 6);
 			giorno = Integer.parseInt(data.substring(8, 9));
 			ora = Integer.parseInt(data.substring(11, 12));
