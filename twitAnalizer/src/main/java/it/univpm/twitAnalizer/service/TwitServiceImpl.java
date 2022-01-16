@@ -5,6 +5,10 @@ import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 import java.io.*;
 import java.util.Vector;
 
@@ -17,6 +21,10 @@ public class TwitServiceImpl implements TwitService{
 	private Vector<TwitModel> twitVector = new Vector<>();
 	private Vector<Integer> counters = new Vector<>();
 	private Vector <String> tempPlace = new Vector<>();
+	// int for hours, days
+	// weeks, months and years can be added here and applied in saveEveryHour
+	private int h = 0;
+	private int d = 0;
 
 	@Override
 	public JSONObject getTwit() {
@@ -66,6 +74,14 @@ public class TwitServiceImpl implements TwitService{
 	@Override
 	public JSONObject statistics() {
 		JSONObject obj = new JSONObject();
+		int tot = 0;
+		for(int k = 0; k < counters.size();k++) {
+			obj.put("PlaceID", tempPlace.get(k));
+			tot += counters.get(k);
+		}
+		for(int k = 0; k < counters.size();k++) {
+			obj.put("Percentage", (counters.get(k)/tot)*100);
+		}
 		return obj;
 	}
 
@@ -97,10 +113,10 @@ public class TwitServiceImpl implements TwitService{
 
 	@Override	
 	// saving/updating JSON objects on txt files
-	public void stampaFile(JSONObject tweet) {
+	public void printFile(String clock, JSONObject tweet) {
 		try {			
 			PrintWriter file = new PrintWriter(new BufferedWriter(new FileWriter("statisticsJSON.txt")));
-			file.println(tweet.toString());
+			file.println(clock + " " + tweet.toString());
 			file.close();
 		}
 
@@ -108,6 +124,25 @@ public class TwitServiceImpl implements TwitService{
 			System.out.println("FOUND ERROR I/0");
 			System.out.println(e);
 		}
+	}
+	
+	@Override
+	// saving every hour / ongoing statistics
+	public void saveEveryHour(){
+		ScheduledExecutorService sched = Executors.newSingleThreadScheduledExecutor();
+		sched.scheduleAtFixedRate(new Runnable() {
+			@Override
+			public void run() {
+				String clock = new String();
+				h++;
+				if(h == 24) {
+					h = 0;
+					d++;
+				}
+				clock = d + ":" + h;
+				stampaFile(clock, statistics());
+			}
+		}, 0, 24, TimeUnit.HOURS);
 	}
 }
 // data y - data x = 24h

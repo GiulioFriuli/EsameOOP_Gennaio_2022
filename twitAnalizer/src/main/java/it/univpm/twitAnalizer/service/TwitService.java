@@ -9,6 +9,7 @@ public interface TwitService {
 	public abstract void fillVector();
 	public abstract JSONObject statistics();
 	public abstract JSONObject twitAnalyzer(TwitModel tweet);
-	public abstract void stampaFile(JSONObject tweet);
+	public abstract void printFile(String clock, JSONObject tweet);
+	public abstract void saveEveryHour();
 }
 // added on main branch
