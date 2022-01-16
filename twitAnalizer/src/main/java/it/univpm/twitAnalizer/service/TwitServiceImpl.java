@@ -10,6 +10,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 import it.univpm.twitAnalizer.model.DateModel;
@@ -21,6 +23,7 @@ public class TwitServiceImpl implements TwitService{
 	private Vector<TwitModel> twitVector = new Vector<>();
 	private Vector<Integer> counters = new Vector<>();
 	private Vector <String> tempPlace = new Vector<>();
+	private Map<Integer, JSONObject> statsMap = new HashMap<>();
 	// int for hours, days
 	// weeks, months and years can be added here and applied in saveEveryHour
 	private int h = 0;
@@ -53,13 +56,6 @@ public class TwitServiceImpl implements TwitService{
 			}
 			temp = twitArray.getJSONObject(i);
 			
-			if(temp.getString("place").equals(null)) {
-				id = null;
-			}
-			else {
-				id = temp.getString("place_id");
-			}
-			
 			data = temp.getString("created_at");
 			anno = Integer.parseInt(data.substring(26));
 			mese = data.substring(4, 6);
@@ -72,7 +68,7 @@ public class TwitServiceImpl implements TwitService{
 	}
 
 	@Override
-	public JSONObject statistics() {
+	public void statistics() {
 		JSONObject obj = new JSONObject();
 		String per = new String();
 		int tot = 0;
@@ -84,41 +80,35 @@ public class TwitServiceImpl implements TwitService{
 			per = (counters.get(k)/tot)*100 + "%";
 			obj.put("Percentage", per);
 		}
-		return obj;
+		statsMap.put(statsMap.size(), obj);
 	}
 
 	@Override
-	public JSONObject twitAnalyzer(TwitModel tweet) {
-		JSONObject temp = new JSONObject();
-		int i = 0;
-		
-		for(int k = 0; k < twitVector.size();k++) {
-			if(temp.getString("PlaceID").equals(tweet.getPlaceId())) {
-				if(!temp.get("Created").equals(tweet.getCreated())) {
-					temp.put("PlaceID", tweet.getPlaceId());
-					temp.put("Created", tweet.getCreated());
-					while(temp.getString("PlaceID") != tempPlace.get(i)) {
-						i++;
-					}
-					counters.set(i, counters.get(i)+1);
-				}
-			}
-			if(!temp.getString("PlaceID").equals(tweet.getPlaceId())) {
-				temp.put("PlaceID", tweet.getPlaceId());
-				temp.put("Created", tweet.getCreated());
-				tempPlace.add(tweet.getPlaceId());
-				counters.add(1);
+	public void twitAnalyzer(TwitModel tweet) {
+		boolean find = false;
+		for(int i=0; i<tempPlace.size(); i++) {
+			if(tweet.getPlaceId().equals(tempPlace.get(i))){
+				counters.set(i, counters.get(i)+1);
+				find = true;
 			}
 		}
-		return temp;
+		if(!find) {
+			tempPlace.add(tweet.getPlaceId());
+			counters.add(1);
+		}
 	}
 
 	@Override	
 	// saving/updating JSON objects on txt files
-	public void printFile(String clock, JSONObject tweet) {
-		try {			
-			PrintWriter file = new PrintWriter(new BufferedWriter(new FileWriter(clock + ".txt")));
-			file.println(clock + " " + tweet.toString());
+	public void printFile(String clock) {
+		try {
+			File f = new File("statisticsJSON.txt");
+			PrintWriter file = new PrintWriter(new BufferedWriter(new FileWriter(f)));
+			CharSequence charClock = clock;
+			CharSequence charValue = statsMap.get(statsMap.size()-1).toString();
+			file.append(charClock);
+			file.append(charValue);
+			file.flush();
 			file.close();
 		}
 
@@ -136,13 +126,23 @@ public class TwitServiceImpl implements TwitService{
 			@Override
 			public void run() {
 				String clock = new String();
+				
+				for(int i=0; i<twitVector.size(); i++) {
+					twitAnalyzer(twitVector.get(i));
+				}
+				
 				h++;
 				if(h == 24) {
 					h = 0;
 					d++;
 				}
-				clock = d + ":" + h;
-				printFile(clock, statistics());
+				if(h<10) {
+					clock = d + "d0" + h + "h:\n";
+				}
+				else {
+				clock = d + "d" + h + "h:\n";
+				}
+				printFile(clock);
 			}
 		}, 0, 24, TimeUnit.HOURS);
 	}
@@ -152,6 +152,23 @@ public class TwitServiceImpl implements TwitService{
 // statistiche{...+...}
 //added on main branch
 
+/*
+ * statistics
+ * 
+ *       ijdnwindwoidwed \n
+ *       ijwndweindowiedw \n
+ *       
+ * 0d02 kdnewidnwoidw
+ *      bfdwfnwnw
+ *     
+ * string = contenuto file
+ * 
+ * writer
+ *  string
+ *  0d 03h kwejndfwenfoiw
+ *         jenfwkjnfiwenfiw
+ * 
+ */
 
 
 // 0g1h.txt => {"PlaceID":null,"Percentage":95}
