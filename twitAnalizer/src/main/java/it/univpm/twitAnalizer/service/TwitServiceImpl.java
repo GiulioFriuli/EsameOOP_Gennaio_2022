@@ -74,13 +74,15 @@ public class TwitServiceImpl implements TwitService{
 	@Override
 	public JSONObject statistics() {
 		JSONObject obj = new JSONObject();
+		String per = new String();
 		int tot = 0;
 		for(int k = 0; k < counters.size();k++) {
 			obj.put("PlaceID", tempPlace.get(k));
 			tot += counters.get(k);
 		}
 		for(int k = 0; k < counters.size();k++) {
-			obj.put("Percentage", (counters.get(k)/tot)*100);
+			per = (counters.get(k)/tot)*100 + "%";
+			obj.put("Percentage", per);
 		}
 		return obj;
 	}
@@ -115,7 +117,7 @@ public class TwitServiceImpl implements TwitService{
 	// saving/updating JSON objects on txt files
 	public void printFile(String clock, JSONObject tweet) {
 		try {			
-			PrintWriter file = new PrintWriter(new BufferedWriter(new FileWriter("statisticsJSON.txt")));
+			PrintWriter file = new PrintWriter(new BufferedWriter(new FileWriter(clock + ".txt")));
 			file.println(clock + " " + tweet.toString());
 			file.close();
 		}
@@ -140,7 +142,7 @@ public class TwitServiceImpl implements TwitService{
 					d++;
 				}
 				clock = d + ":" + h;
-				stampaFile(clock, statistics());
+				printFile(clock, statistics());
 			}
 		}, 0, 24, TimeUnit.HOURS);
 	}
@@ -152,7 +154,8 @@ public class TwitServiceImpl implements TwitService{
 
 
 
-
+// 0g1h.txt => {"PlaceID":null,"Percentage":95}
+// 1g0h.txt => {...}
 
 /*
  *  file di testo
