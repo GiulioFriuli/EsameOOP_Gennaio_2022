@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import java.io.*;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -20,7 +21,6 @@ import it.univpm.twitAnalizer.model.TwitModel;
 @Service
 public class TwitServiceImpl implements TwitService{
 	private String url = new String("https://wd4hfxnxxa.execute-api.us-east-2.amazonaws.com/dev/api/1.1/search/tweets.json?q=%23travel&count=100");
-	private Vector<TwitModel> twitVector = new Vector<>();
 	private Vector<Integer> counters = new Vector<>();
 	private Vector <String> tempPlace = new Vector<>();
 	private Map<Integer, JSONObject> statsMap = new HashMap<>();
@@ -63,8 +63,10 @@ public class TwitServiceImpl implements TwitService{
 			ora = Integer.parseInt(data.substring(11, 12));
 			DateModel dm = new DateModel(anno, mese, giorno, ora);
 			TwitModel tm = new TwitModel(id, dm);
-			twitVector.add(tm);
+			
+			twitAnalyzer(tm);
 		}
+		
 	}
 
 	@Override
@@ -127,9 +129,8 @@ public class TwitServiceImpl implements TwitService{
 			public void run() {
 				String clock = new String();
 				
-				for(int i=0; i<twitVector.size(); i++) {
-					twitAnalyzer(twitVector.get(i));
-				}
+				fillVector();
+				statistics();
 				
 				h++;
 				if(h == 24) {
@@ -146,39 +147,9 @@ public class TwitServiceImpl implements TwitService{
 			}
 		}, 0, 24, TimeUnit.HOURS);
 	}
+	
+	@Override
+	public Collection<JSONObject> getStats(){
+		return statsMap.values();
+	}
 }
-// data y - data x = 24h
-// temp[{placeID:null,counter:270},{placeID:156f1afsdf86,counter:5}]
-// statistiche{...+...}
-//added on main branch
-
-/*
- * statistics
- * 
- *       ijdnwindwoidwed \n
- *       ijwndweindowiedw \n
- *       
- * 0d02 kdnewidnwoidw
- *      bfdwfnwnw
- *     
- * string = contenuto file
- * 
- * writer
- *  string
- *  0d 03h kwejndfwenfoiw
- *         jenfwkjnfiwenfiw
- * 
- */
-
-
-// 0g1h.txt => {"PlaceID":null,"Percentage":95}
-// 1g0h.txt => {...}
-
-/*
- *  file di testo
- *  
- *  000g:01h statistics()
- *  000g:02h statistics()
- *  ...
- *  001g:00h statistics()
- */
