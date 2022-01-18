@@ -84,25 +84,26 @@ public class TwitServiceImpl implements TwitService{
 		}
 		
 	}
-
-	@Override
-	public void statistics() {
+	
+    @Override
+	public void statistics(){
 		System.out.println("statistics");
-		JSONObject obj = new JSONObject();
 		String per = new String();
 		double tot = 0;
-		for(int k = 0; k < counters.size();k++) {
-			obj.put("PlaceID", tempPlace.get(k));
-			tot += counters.get(k);
+		for(int i=0; i<counters.size(); i++){
+			tot += counters.get(i);
 		}
-		for(int k = 0; k < counters.size();k++) {
-			per = (counters.get(k)/tot)*100 + "%";
+		for(int i=0; i<counters.size(); i++){
+			JSONObject obj = new JSONObject();
+			obj.put("PlaceId", tempPlace.get(i));
+			per = (counters.get(i)/tot)*100+"%";
 			obj.put("Percentage", per);
+			statsMap.put(statsMap.size(), obj);
 		}
-		statsMap.put(statsMap.size(), obj);
 		System.out.println("Test");
 	}
-
+	   
+ 
 	@Override
 	public void twitAnalyzer(TwitModel tweet) {
 		System.out.println("twitAnalyzer");
@@ -170,7 +171,7 @@ public class TwitServiceImpl implements TwitService{
 	final ScheduledFuture<?> sHandle = s.scheduleAtFixedRate(saveEvHr,0,1,TimeUnit.MINUTES);
 	s.schedule(new Runnable() {
 		public void run() {sHandle.cancel(true);}
-		},5,TimeUnit.MINUTES);
+		},1,TimeUnit.MINUTES);
 	}
 //		ScheduledExecutorService sched = Executors.newSingleThreadScheduledExecutor();
 //		sched.scheduleAtFixedRate(new Runnable() {
