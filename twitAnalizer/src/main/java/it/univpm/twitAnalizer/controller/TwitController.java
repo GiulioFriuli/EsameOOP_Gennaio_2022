@@ -25,5 +25,10 @@ public class TwitController {
 		ts.saveEveryHour();
 		return new ResponseEntity<>("Statistics saved.", HttpStatus.OK);
 	}
-
+	
+	@RequestMapping(value = "/test", method = RequestMethod.POST)
+	public ResponseEntity<Object> everyHour(){
+		ts.everyHour();
+		return new ResponseEntity<>("TESTED.", HttpStatus.OK);
+	}
 }

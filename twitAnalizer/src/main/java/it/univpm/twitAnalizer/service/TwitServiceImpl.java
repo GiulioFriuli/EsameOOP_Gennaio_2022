@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -28,33 +29,48 @@ public class TwitServiceImpl implements TwitService{
 	// weeks, months and years can be added here and applied in saveEveryHour
 	private int h = 0;
 	private int d = 0;
+	
+	private final ScheduledExecutorService s = Executors.newScheduledThreadPool(1);
+	@Override
+	public void everyHour() {
+		final Runnable sr = new Runnable() {
+			public void run() { System.out.println("Test");}
+	};
+	final ScheduledFuture<?> sHandle = s.scheduleAtFixedRate(sr,0,1,TimeUnit.SECONDS);
+	s.schedule(new Runnable() {
+		public void run() {sHandle.cancel(true);}
+		},5,TimeUnit.SECONDS);
+	}
 
 	@Override
 	public JSONObject getTwit() {
+		System.out.println("getTwit");
 		JSONObject obj;
 		RestTemplate rt = new RestTemplate();
 		obj = new JSONObject(rt.getForObject(url, String.class));
+		System.out.println("Test");
 		return obj;
 	}
 
 	@Override
 	public void fillVector() {
+		System.out.println("fillVector");
 		int anno, giorno, ora;
 		String mese, data, id;
-		JSONObject temp;
+		JSONObject temp, temp2;
 		JSONArray twitArray = getTwit().getJSONArray("statuses");
 
 		for(int i=0; i<twitArray.length(); i++) {
 
 			temp = twitArray.getJSONObject(i);
 
-			if(temp.getString("place").equals(null)) {
-				id = null;
+			if(temp.isNull("place")) {
+				id = "null";
 			}
 			else {
-				id = temp.getString("place_id");
+				temp2 = temp.getJSONObject("place");
+				id = temp2.getString("id");
 			}
-			temp = twitArray.getJSONObject(i);
 			
 			data = temp.getString("created_at");
 			anno = Integer.parseInt(data.substring(26));
@@ -65,15 +81,17 @@ public class TwitServiceImpl implements TwitService{
 			TwitModel tm = new TwitModel(id, dm);
 			
 			twitAnalyzer(tm);
+			System.out.println("Test");
 		}
 		
 	}
 
 	@Override
 	public void statistics() {
+		System.out.println("statistics");
 		JSONObject obj = new JSONObject();
 		String per = new String();
-		int tot = 0;
+		double tot = 0;
 		for(int k = 0; k < counters.size();k++) {
 			obj.put("PlaceID", tempPlace.get(k));
 			tot += counters.get(k);
@@ -83,10 +101,12 @@ public class TwitServiceImpl implements TwitService{
 			obj.put("Percentage", per);
 		}
 		statsMap.put(statsMap.size(), obj);
+		System.out.println("Test");
 	}
 
 	@Override
 	public void twitAnalyzer(TwitModel tweet) {
+		System.out.println("twitAnalyzer");
 		boolean find = false;
 		for(int i=0; i<tempPlace.size(); i++) {
 			if(tweet.getPlaceId().equals(tempPlace.get(i))){
@@ -98,23 +118,26 @@ public class TwitServiceImpl implements TwitService{
 			tempPlace.add(tweet.getPlaceId());
 			counters.add(1);
 		}
+		System.out.println("Test");
 	}
 
 	@Override	
 	// saving/updating JSON objects on txt files
 	public void printFile(String clock) {
 		try {
+			System.out.println("try printFile");
 			File f = new File("statisticsJSON.txt");
 			PrintWriter file = new PrintWriter(new BufferedWriter(new FileWriter(f)));
 			CharSequence charClock = clock;
 			CharSequence charValue = statsMap.get(statsMap.size()-1).toString();
 			file.append(charClock);
 			file.append(charValue);
-			file.flush();
+//			file.flush();
 			file.close();
+			System.out.println("Test");
 		}
 
-		catch(IOException e) {
+		catch(IOException e) {			
 			System.out.println("FOUND ERROR I/0");
 			System.out.println(e);
 		}
@@ -123,30 +146,57 @@ public class TwitServiceImpl implements TwitService{
 	@Override
 	// saving every hour / ongoing statistics
 	public void saveEveryHour(){
-		ScheduledExecutorService sched = Executors.newSingleThreadScheduledExecutor();
-		sched.scheduleAtFixedRate(new Runnable() {
-			@Override
-			public void run() {
-				String clock = new String();
-				
-				fillVector();
-				statistics();
-				
-				h++;
-				if(h == 24) {
-					h = 0;
-					d++;
-				}
-				if(h<10) {
-					clock = d + "d0" + h + "h:\n";
-				}
-				else {
-				clock = d + "d" + h + "h:\n";
-				}
-				printFile(clock);
+		System.out.println("saveEveryHour");
+		final Runnable saveEvHr = new Runnable() {
+			public void run() { String clock = new String();
+			
+			fillVector();
+			statistics();
+			
+			h++;
+			if(h == 24) {
+				h = 0;
+				d++;
 			}
-		}, 0, 24, TimeUnit.HOURS);
+			if(h < 10) {
+				clock = d + "d0" + h + "h:\n";
+			}
+			else {
+				clock = d + "d" + h + "h:\n";
+			}
+			printFile(clock);
+			System.out.println("Saved");
+			}
+	};
+	final ScheduledFuture<?> sHandle = s.scheduleAtFixedRate(saveEvHr,0,1,TimeUnit.MINUTES);
+	s.schedule(new Runnable() {
+		public void run() {sHandle.cancel(true);}
+		},5,TimeUnit.MINUTES);
 	}
+//		ScheduledExecutorService sched = Executors.newSingleThreadScheduledExecutor();
+//		sched.scheduleAtFixedRate(new Runnable() {
+//			@Override
+//			public void run() {
+//				String clock = new String();
+//				
+//				fillVector();
+//				statistics();
+//				
+//				h++;
+//				if(h == 24) {
+//					h = 0;
+//					d++;
+//				}
+//				if(h<10) {
+//					clock = d + "d0" + h + "h:\n";
+//				}
+//				else {
+//				clock = d + "d" + h + "h:\n";
+//				}
+//				printFile(clock);
+//			}
+//		}, 0, 24, TimeUnit.HOURS);
+//	}
 	
 	@Override
 	public Collection<JSONObject> getStats(){
