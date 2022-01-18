@@ -1,7 +1,5 @@
 package it.univpm.twitAnalizer.service;
 
-import java.util.Collection;
-
 import org.json.JSONObject;
 
 import it.univpm.twitAnalizer.model.TwitModel;
@@ -14,6 +12,6 @@ public interface TwitService {
 	public abstract void twitAnalyzer(TwitModel tweet);
 	public abstract void printFile(String clock);
 	public abstract void saveEveryHour();
-	public abstract Collection<JSONObject> getStats();
+	public abstract String getStats();
 }
 // added on main branch

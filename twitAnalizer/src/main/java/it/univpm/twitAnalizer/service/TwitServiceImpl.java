@@ -11,7 +11,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import java.io.*;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -199,7 +198,7 @@ public class TwitServiceImpl implements TwitService{
 //	}
 	
 	@Override
-	public Collection<JSONObject> getStats(){
-		return statsMap.values();
+	public String getStats(){
+		return statsMap.values().toString();
 	}
 }
