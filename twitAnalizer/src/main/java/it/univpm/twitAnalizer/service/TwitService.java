@@ -10,6 +10,8 @@ public interface TwitService {
 	public abstract void fillVector();
 	public abstract void statistics();
 	public abstract void twitAnalyzer(TwitModel tweet);
+	public abstract String loadFile();
+	public abstract void clearFile();
 	public abstract void printFile(String clock);
 	public abstract void saveEveryHour();
 	public abstract String getStats();

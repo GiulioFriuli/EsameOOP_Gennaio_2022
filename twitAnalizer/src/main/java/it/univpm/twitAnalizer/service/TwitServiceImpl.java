@@ -29,6 +29,10 @@ public class TwitServiceImpl implements TwitService{
 	private int h = 0;
 	private int d = 0;
 	
+	public TwitServiceImpl() {
+		clearFile();
+	}
+	
 	private final ScheduledExecutorService s = Executors.newScheduledThreadPool(1);
 	@Override
 	public void everyHour() {
@@ -53,6 +57,7 @@ public class TwitServiceImpl implements TwitService{
 
 	@Override
 	public void fillVector() {
+		statsMap.clear();
 		System.out.println("fillVector");
 		int anno, giorno, ora;
 		String mese, data, id;
@@ -120,19 +125,54 @@ public class TwitServiceImpl implements TwitService{
 		}
 		System.out.println("Test");
 	}
+	
+	@Override
+	public String loadFile() {
+		String ret = new String();
+		int x=0;
+		char c;
+		try {
+			BufferedReader br = new BufferedReader(new FileReader("statisticsJSON.txt"));
+			do {
+				x = br.read();
+				c = (char) x;
+				ret += c;
+			}while(x!=-1);
+			br.close();
+		}
+		catch(IOException e) {
+			System.out.println(e);
+		}
+		return ret;
+	}
+	
+	@Override
+	public void clearFile() {
+		try {
+			FileWriter file = new FileWriter("statisticsJSON.txt");
+			file.write("");
+			file.close();
+		} catch(IOException e) {
+			System.out.println(e);
+		}
+	}
 
 	@Override	
 	// saving/updating JSON objects on txt files
 	public void printFile(String clock) {
 		try {
+			String s = new String(); 
 			System.out.println("try printFile");
 			File f = new File("statisticsJSON.txt");
+			if(f.exists()) {
+				s = loadFile(); 
+			}
 			PrintWriter file = new PrintWriter(new BufferedWriter(new FileWriter(f)));
-			CharSequence charClock = clock;
-			CharSequence charValue = statsMap.get(statsMap.size()-1).toString();
-			file.append(charClock);
-			file.append(charValue);
-//			file.flush();
+			CharSequence charClock = clock+"\n";
+			CharSequence charValue = statsMap.values().toString();
+			s += charClock;
+			s += charValue;
+			file.println(s);
 			file.close();
 			System.out.println("Test");
 		}
@@ -171,32 +211,12 @@ public class TwitServiceImpl implements TwitService{
 	final ScheduledFuture<?> sHandle = s.scheduleAtFixedRate(saveEvHr,0,1,TimeUnit.MINUTES);
 	s.schedule(new Runnable() {
 		public void run() {sHandle.cancel(true);}
-		},1,TimeUnit.MINUTES);
+		},4,TimeUnit.MINUTES);
 	}
-//		ScheduledExecutorService sched = Executors.newSingleThreadScheduledExecutor();
-//		sched.scheduleAtFixedRate(new Runnable() {
-//			@Override
-//			public void run() {
-//				String clock = new String();
-//				
-//				fillVector();
-//				statistics();
-//				
-//				h++;
-//				if(h == 24) {
-//					h = 0;
-//					d++;
-//				}
-//				if(h<10) {
-//					clock = d + "d0" + h + "h:\n";
-//				}
-//				else {
-//				clock = d + "d" + h + "h:\n";
-//				}
-//				printFile(clock);
-//			}
-//		}, 0, 24, TimeUnit.HOURS);
-//	}
+
+/*
+ * 
+ */
 	
 	@Override
 	public String getStats(){
