@@ -1,0 +1,6 @@
+￿0d01h:
+[{"PlaceId":"null","Percentage":"99.0%","Name":"null"}, {"PlaceId":"0073b76548e5984f","Percentage":"1.0%","Name":"Sydney"}]
+
+￿0d02h:
+[{"PlaceId":"null","Percentage":"99.5%","Name":"null"}, {"PlaceId":"0073b76548e5984f","Percentage":"0.5%","Name":"Sydney"}]
+
