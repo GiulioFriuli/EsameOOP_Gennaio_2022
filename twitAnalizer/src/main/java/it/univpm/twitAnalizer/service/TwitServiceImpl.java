@@ -22,6 +22,7 @@ import it.univpm.twitAnalizer.model.TwitModel;
 public class TwitServiceImpl implements TwitService{
 	private String url = new String("https://wd4hfxnxxa.execute-api.us-east-2.amazonaws.com/dev/api/1.1/search/tweets.json?q=%23travel&count=100");
 	private Vector<Integer> counters = new Vector<>();
+	private Vector<String> tempName = new Vector<>();
 	private Vector <String> tempPlace = new Vector<>();
 	private Map<Integer, JSONObject> statsMap = new HashMap<>();
 	// int for hours, days
@@ -60,7 +61,7 @@ public class TwitServiceImpl implements TwitService{
 		statsMap.clear();
 		System.out.println("fillVector");
 		int anno, giorno, ora;
-		String mese, data, id;
+		String mese, data, id, name;
 		JSONObject temp, temp2;
 		JSONArray twitArray = getTwit().getJSONArray("statuses");
 
@@ -70,10 +71,12 @@ public class TwitServiceImpl implements TwitService{
 
 			if(temp.isNull("place")) {
 				id = "null";
+				name = "null";
 			}
 			else {
 				temp2 = temp.getJSONObject("place");
 				id = temp2.getString("id");
+				name = temp2.getString("name");	
 			}
 			
 			data = temp.getString("created_at");
@@ -82,7 +85,7 @@ public class TwitServiceImpl implements TwitService{
 			giorno = Integer.parseInt(data.substring(8, 9));
 			ora = Integer.parseInt(data.substring(11, 12));
 			DateModel dm = new DateModel(anno, mese, giorno, ora);
-			TwitModel tm = new TwitModel(id, dm);
+			TwitModel tm = new TwitModel(id, name, dm);
 			
 			twitAnalyzer(tm);
 			System.out.println("Test");
@@ -100,6 +103,7 @@ public class TwitServiceImpl implements TwitService{
 		}
 		for(int i=0; i<counters.size(); i++){
 			JSONObject obj = new JSONObject();
+			obj.put("Name", tempName.get(i));
 			obj.put("PlaceId", tempPlace.get(i));
 			per = (counters.get(i)/tot)*100+"%";
 			obj.put("Percentage", per);
@@ -121,6 +125,7 @@ public class TwitServiceImpl implements TwitService{
 		}
 		if(!find) {
 			tempPlace.add(tweet.getPlaceId());
+			tempName.add(tweet.getName());
 			counters.add(1);
 		}
 		System.out.println("Test");
@@ -168,8 +173,8 @@ public class TwitServiceImpl implements TwitService{
 				s = loadFile(); 
 			}
 			PrintWriter file = new PrintWriter(new BufferedWriter(new FileWriter(f)));
-			CharSequence charClock = clock+"\n";
-			CharSequence charValue = statsMap.values().toString();
+			CharSequence charClock = clock;
+			CharSequence charValue = statsMap.values().toString()+"\n";
 			s += charClock;
 			s += charValue;
 			file.println(s);
@@ -211,7 +216,7 @@ public class TwitServiceImpl implements TwitService{
 	final ScheduledFuture<?> sHandle = s.scheduleAtFixedRate(saveEvHr,0,1,TimeUnit.MINUTES);
 	s.schedule(new Runnable() {
 		public void run() {sHandle.cancel(true);}
-		},4,TimeUnit.MINUTES);
+		},1,TimeUnit.MINUTES);
 	}
 
 /*
