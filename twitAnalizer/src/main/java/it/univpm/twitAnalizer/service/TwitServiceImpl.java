@@ -239,6 +239,10 @@ public class TwitServiceImpl implements TwitService{
 		},24,TimeUnit.HOURS);
 	}
 
+	/*
+	 * searches in statsMap for specific place information
+	 */
+	@Override
 	public String searchName(String n) {
 		String name = new String();
 		name = "Name not found";
@@ -248,8 +252,16 @@ public class TwitServiceImpl implements TwitService{
 		return name;
 	}
 
+	/*
+	 * shows all statistics information about all place found
+	 */
 	@Override
 	public String getStats(){
+		if(statsMap.isEmpty()) {
+			String ret = new String();
+			ret = "No information saved, send PULL request";
+			return ret;
+		}
 		return statsMap.values().toString();
 	}
 }

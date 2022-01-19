@@ -9,14 +9,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.univpm.twitAnalizer.service.TwitService;
-
+/*
+ * @author Nicholas Bradach
+ * @author Andrea Colonnini
+ * 
+ */
 @RestController
 public class TwitController {
-	/*
-	 * @author Nicholas Bradach
-	 * @author Andrea Colonnini
-	 * 
-	 */
+	
 	@Autowired
 	TwitService ts;
 	
