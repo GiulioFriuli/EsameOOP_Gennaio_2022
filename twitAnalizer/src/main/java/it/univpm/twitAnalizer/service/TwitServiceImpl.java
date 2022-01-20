@@ -259,7 +259,7 @@ public class TwitServiceImpl implements TwitService{
 	public String getStats(){
 		if(statsMap.isEmpty()) {
 			String ret = new String();
-			ret = "No information saved, send PULL request";
+			ret = "No information saved, send PUT request";
 			return ret;
 		}
 		return statsMap.values().toString();
