@@ -46,7 +46,7 @@ public class TwitServiceImpl implements TwitService{
 	private int h = 0;
 	private int d = 0;
 	private final ScheduledExecutorService s = Executors.newScheduledThreadPool(1);
-	
+
 	/*
 	 * As soon as TwitServiceImpl() is called, clearFile is called
 	 */
@@ -218,7 +218,6 @@ public class TwitServiceImpl implements TwitService{
 			modelCreator();
 			statistics();
 
-			h++;
 			if(h == 24) {
 				h = 0;
 				d++;
@@ -231,6 +230,7 @@ public class TwitServiceImpl implements TwitService{
 			}
 			printFile(clock);
 			System.out.println("Saved: "+clock);
+			h++;
 			}
 		};
 		final ScheduledFuture<?> sHandle = s.scheduleAtFixedRate(saveEvHr,0,1,TimeUnit.HOURS);
